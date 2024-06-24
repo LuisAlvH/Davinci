@@ -10,19 +10,7 @@ public class Principal {
 		
 			MiAdministracion.menuDeAdministracionDeEquipos();
 			
-			/*
-			 	
-			 	Equipo uno =new Equipo("Boca","La boca");
-			 	Jugador Lalo=new Jugador("Ronaldo", 23,"DEF", 5);
-			 	
-			 	uno.agregarJugadorAlEquipo(Lalo);
-			 	
-			 	MiAdministracion.AgregarUnEquipoDesdeCodigo(uno);
-			 	MiAdministracion.MostrarCantidadTotalDeEquiposDesdeCodigo();
-			 	MiAdministracion.MostrarListaDeEquiposDesdeElCodigo();
-			 	MiAdministracion.EliminarUnEquipoDesdeCodigo(uno.getNombreEquipo());;
-			 	
-			 */
+		
 
 	}
 

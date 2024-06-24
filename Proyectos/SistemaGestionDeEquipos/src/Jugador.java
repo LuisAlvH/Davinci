@@ -9,9 +9,9 @@ public class Jugador extends Persona{
 	
 	
 ////CONSTRUCTOR
-	public Jugador(String nombre, int edad, String posicion, int numCamiseta) {
+	public Jugador(String nombre, int edad, String camiseta, int numCamiseta) {
 		super(nombre, edad);
-		this.posicion = posicion;
+		this.posicion = camiseta;
 		this.numCamiseta = numCamiseta;
 	}
 

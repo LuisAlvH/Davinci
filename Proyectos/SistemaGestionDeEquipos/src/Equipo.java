@@ -18,6 +18,15 @@ public class Equipo {
 		
 		
 	}
+	
+	
+	public Equipo( ) {
+		
+		this.nombreEquipo = "";
+		Ciudad = "";
+		
+		
+	}
 
 ///GET AND SET
 		

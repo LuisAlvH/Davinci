@@ -1,3 +1,5 @@
+import java.sql.SQLOutput;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
@@ -33,8 +35,8 @@ public class GestorDeEquipos {
 
 	public void menuDeAdministracionDeEquipos() {
 
-		String[] OpcionesMenu = { "PARTIDO[1 vs 1]", "TORNEO", "CREAR EQUIPO", "ELIMINAR EQUIPO", "MODIFICAR EQUIPO",
-				"MOSTRAR INFORMACION DE EQUIPOS", "SALIR" };
+		String[] OpcionesMenu = { "PARTIDO[1 vs 1]", "TORNEO [8 EQUIPOS]", "CREAR EQUIPO", "ELIMINAR EQUIPO",
+				"MODIFICAR EQUIPO", "MOSTRAR INFORMACION DE EQUIPOS", "SALIR" };
 		String OpcionSeleccionada = " ";
 
 		/// OPCION AGREGAR EQUIPO
@@ -76,8 +78,8 @@ public class GestorDeEquipos {
 					PartidoVersusUnoContraUno(this.equipos);
 
 					break;
-				case "TORNEO":
-					JOptionPane.showMessageDialog(null, "PROXIMAMENTE...");
+				case "TORNEO [8 EQUIPOS]":
+					JugarTorneo(equipos);
 
 					break;
 				default:
@@ -90,6 +92,655 @@ public class GestorDeEquipos {
 		} while (!OpcionSeleccionada.equals("Salir"));
 
 		System.out.println(" \n Hasta luego, vuelva pronto!");
+
+	}
+
+///TORNEO
+
+	private static void JugarTorneo(ArrayList<Equipo> equipos) {
+		String[] OpcionesMenu = { "JUGAR TORNEO[equipos aleatorios]", "SALIR" };
+		String OpcionSeleccionada = " ";
+
+		do {
+
+			OpcionSeleccionada = (String) JOptionPane.showInputDialog(null, "Seleccione una opcion", "Menu",
+					JOptionPane.QUESTION_MESSAGE, null, OpcionesMenu, OpcionesMenu[0]);
+
+			if (OpcionSeleccionada == null) {
+
+				OpcionSeleccionada = ("SALIR");
+
+			} else {
+
+				switch (OpcionSeleccionada) {
+
+	
+				case "JUGAR TORNEO[equipos aleatorios]":
+
+					JugarTorneoAleatorio(equipos);
+					break;
+
+				}
+
+			}
+
+		} while (!OpcionSeleccionada.equals("SALIR"));
+
+	}
+
+	private static void JugarTorneoAleatorio(ArrayList<Equipo> equipos) {
+		ArrayList<Equipo> equiposAux = new ArrayList<>();
+
+		AgregandoEquiposExtra(equiposAux, equipos);
+
+		CargarEquiposAleatorios(equiposAux);
+
+		/// INGRESO DE SALDO
+		int saldo = IngresoDeSaldo();
+
+		MostrarOpcioneTorneo(saldo, equiposAux);
+		JOptionPane.showMessageDialog(null, "Finalizo el torneo!");
+
+		
+
+		equiposAux.clear();
+
+	}
+
+	private static void MostrarOpcioneTorneo(int saldo, ArrayList<Equipo> equipos) {
+		
+
+		Partido p1 = ObteniendoPartido(equipos);
+		Partido p2 = ObteniendoPartido(equipos);
+		Partido p3 = ObteniendoPartido(equipos);
+		Partido p4 = ObteniendoPartido(equipos);
+		
+		
+		equipos.clear();
+		boolean valor = false;
+		do {
+
+			String[] opciones = {"Ingresar dinero","Realizar apuesta", "Mostrar fixture" };
+
+			String mensaje = "Tu saldo es : $" + saldo;
+
+			int seleccion = JOptionPane.showOptionDialog(null, mensaje, "Menu torneo", 0, JOptionPane.INFORMATION_MESSAGE,
+					null, opciones, "");
+			
+			
+			switch (seleccion) {
+			case 0:
+			
+				saldo += ingresoDeMasDinero();
+				JOptionPane.showMessageDialog(null, "Dinero recargado a la cuenta");
+				break;
+			case 1:
+				
+			
+				valor = RealizarApuestasCuartos(p1, p2, p3, p4, saldo);
+				break;
+
+			case 2:
+
+				MostrarFixtureCuartos(p1, p2, p3, p4);
+			
+				break;
+
+			
+			}
+			
+			
+		} while (!valor);
+		
+		
+
+	}
+
+	private static boolean RealizarApuestasCuartos(Partido p1, Partido p2, Partido p3, Partido p4, int saldo) {
+
+		Equipo g1 = p1.JugarPartidoYDevuelveGanador();
+		Equipo g2 = p2.JugarPartidoYDevuelveGanador();
+		Equipo g3 = p3.JugarPartidoYDevuelveGanador();
+		Equipo g4 = p4.JugarPartidoYDevuelveGanador();
+		String mensaje = MostrarResultadosCuartos(p1, p2, p3, p4);
+		
+		
+		if (saldo != 0) {
+			int apuesta = IngresaApuesta(saldo);
+
+			String[] opciones = { p1.InformacionInicialPartido(), p2.InformacionInicialPartido(),
+					p3.InformacionInicialPartido(), p4.InformacionInicialPartido() };
+
+			int seleccion = JOptionPane.showOptionDialog(null, "Selecciona el partido", "Menu torneo",
+					JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, opciones, opciones[0]);
+
+			
+
+			switch (seleccion) {
+			case 0:
+				String[] opciones2 = { p1.getUno().getNombreEquipo(), p1.getDos().getNombreEquipo() };
+
+				int seleccion2 = JOptionPane.showOptionDialog(null, "Selecciona el equipo Ganador:", "Menu torneo",
+						JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, opciones2,
+						opciones2[0]);
+
+				if (opciones2[seleccion2] == g1.getNombreEquipo()) {
+
+					apuesta = apuesta * 2;
+					saldo = saldo + apuesta;
+
+					mensaje = mensaje + "\n ------APUESTA------ \n Ganaste $ " + apuesta;
+
+					JOptionPane.showMessageDialog(null, mensaje);
+
+				} else {
+
+					mensaje = mensaje + "\n ------APUESTA------ \n Perdiste $ " + apuesta;
+					saldo = saldo - apuesta;
+					JOptionPane.showMessageDialog(null, mensaje);
+				}
+
+				break;
+			case 1:
+				String[] opciones3 = { p2.getUno().getNombreEquipo(), p2.getDos().getNombreEquipo() };
+				int seleccion3 = JOptionPane.showOptionDialog(null, "Selecciona el equipo Ganador:", "Menu torneo",
+						JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, opciones3, opciones3[0]);
+
+				if (opciones3[seleccion3] == g2.getNombreEquipo()) {
+
+					apuesta = apuesta * 2;
+					saldo = saldo + apuesta;
+
+					mensaje = mensaje + "\n ------APUESTA------ \n Ganaste $ " + apuesta;
+
+					JOptionPane.showMessageDialog(null, mensaje);
+
+				} else {
+
+					mensaje = mensaje + "\n ------APUESTA------ \n Perdiste $ " + apuesta;
+					saldo = saldo - apuesta;
+					JOptionPane.showMessageDialog(null, mensaje);
+				}
+
+				break;
+			case 2:
+
+				String[] opciones4 = { p3.getUno().getNombreEquipo(), p3.getDos().getNombreEquipo() };
+				int seleccion4 = JOptionPane.showOptionDialog(null, "Selecciona el equipo Ganador:", "Menu torneo",
+						JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, opciones4, opciones4[0]);
+
+				if (opciones4[seleccion4] == g3.getNombreEquipo()) {
+
+					apuesta = apuesta * 2;
+					saldo = saldo + apuesta;
+
+					mensaje = mensaje + "\n ------APUESTA------  \n Ganaste $ " + apuesta;
+
+					JOptionPane.showMessageDialog(null, mensaje);
+
+				} else {
+
+					mensaje = mensaje + "\n ------APUESTA------ \n Perdiste $ " + apuesta;
+					saldo = saldo - apuesta;
+					JOptionPane.showMessageDialog(null, mensaje);
+				}
+
+				break;
+			case 3:
+				String[] opciones5 = { p4.getUno().getNombreEquipo(), p4.getDos().getNombreEquipo() };
+				int seleccion5 = JOptionPane.showOptionDialog(null, "Selecciona el equipo Ganador:", "Menu torneo",
+						JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, opciones5, opciones5[0]);
+
+				if (opciones5[seleccion5] == g4.getNombreEquipo()) {
+
+					apuesta = apuesta * 2;
+					saldo = saldo + apuesta;
+
+					mensaje = mensaje + "\n ------APUESTA------ \n Ganaste $ " + apuesta;
+
+					JOptionPane.showMessageDialog(null, mensaje);
+
+				} else {
+
+					mensaje = mensaje + "\n ------APUESTA------ \n Perdiste $ " + apuesta;
+					saldo = saldo - apuesta;
+					JOptionPane.showMessageDialog(null, mensaje);
+				}
+
+				break;
+
+			}
+
+			MostrarMenuSemifinal(g1, g2, g3, g4, saldo);
+			return true;
+
+		} else {
+
+			JOptionPane.showMessageDialog(null, "No presentas saldo para seguir jugando con las apuestas!");
+			return false;
+		}
+		
+		
+		
+		
+
+	}
+
+	private static void MostrarMenuSemifinal(Equipo G1, Equipo G2, Equipo G3, Equipo G4, int saldo) {
+
+		
+
+		Partido partido1 = new Partido( G1, G3);
+		Partido partido2 = new Partido( G2, G4);
+		
+		
+		boolean valor = false;
+		do {
+			String[] opciones = {"Ingresar dinero","Realizar apuesta", "Mostrar fixture" };
+
+			String mensaje = "Tu saldo es : $" + saldo;
+
+			int seleccion = JOptionPane.showOptionDialog(null, mensaje, "Menu torneo", 0, JOptionPane.INFORMATION_MESSAGE,
+					null, opciones, "");
+
+			switch (seleccion) {
+			case 0:
+				saldo += ingresoDeMasDinero();
+				JOptionPane.showMessageDialog(null, "Dinero recargado a la cuenta");
+				break;
+				
+			case 1:
+				
+				valor = RealizarApuestaSemifinal(partido1, partido2, saldo);
+				
+				break;
+
+			case 2:
+				MostrarFixtureSemifinal(partido1, partido2);
+			
+				break;
+
+		
+
+			}
+		} while (!valor);
+
+	}
+
+	private static boolean RealizarApuestaSemifinal(Partido partido1, Partido partido2, int saldo) {
+
+		Equipo g1 = partido1.JugarPartidoYDevuelveGanador();
+		Equipo g2 = partido2.JugarPartidoYDevuelveGanador();
+		String mensaje = MostrarResultadoSemifinal(partido1, partido2);
+		
+		
+		if (saldo != 0) {
+			int apuesta = IngresaApuesta(saldo);
+
+			String[] opciones = { partido1.InformacionInicialPartido(), partido2.InformacionInicialPartido() };
+
+			int seleccion = JOptionPane.showOptionDialog(null, "Selecciona el partido", "Menu torneo",
+					JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, opciones, opciones[0]);
+			
+
+			switch (seleccion) {
+			case 0:
+				String[] opciones2 = { partido1.getUno().getNombreEquipo(), partido1.getDos().getNombreEquipo() };
+
+				int seleccion2 = JOptionPane.showOptionDialog(null, "Selecciona el equipo Ganador:", "Menu torneo",
+						JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, opciones2,
+						opciones2[0]);
+
+				if (opciones2[seleccion2] == g1.getNombreEquipo()) {
+
+					apuesta = apuesta * 2;
+					saldo = saldo + apuesta;
+
+					mensaje = mensaje + "\n ------APUESTA------ \n Ganaste $ " + apuesta;
+
+					JOptionPane.showMessageDialog(null, mensaje);
+
+				} else {
+
+					mensaje = mensaje + "\n ------APUESTA------  \n Perdiste $ " + apuesta;
+					saldo = saldo - apuesta;
+					JOptionPane.showMessageDialog(null, mensaje);
+				}
+
+				break;
+			case 1:
+
+				String[] opciones3 = { partido2.getUno().getNombreEquipo(), partido2.getDos().getNombreEquipo() };
+
+				int seleccion3 = JOptionPane.showOptionDialog(null, "Selecciona el equipo Ganador:", "Menu torneo",
+						JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, opciones3,
+						opciones3[0]);
+
+				if (opciones3[seleccion3] == g2.getNombreEquipo()) {
+
+					apuesta = apuesta * 2;
+					saldo = saldo + apuesta;
+
+					mensaje = mensaje + "\n ------APUESTA------ \n Ganaste $ " + apuesta;
+
+					JOptionPane.showMessageDialog(null, mensaje);
+
+				} else {
+
+					mensaje = mensaje + "\n ------APUESTA------ \n Perdiste $ " + apuesta;
+					saldo = saldo - apuesta;
+					JOptionPane.showMessageDialog(null, mensaje);
+				}
+				break;
+
+			}
+			
+			
+			
+			MostrarMenuFinal(g1,g2,saldo);
+			return true;
+		} else {
+			
+			JOptionPane.showMessageDialog(null, "No presentas saldo para seguir jugando con las apuestas!");
+			return false;
+		}
+		
+		
+		
+
+	}
+
+	private static void MostrarMenuFinal(Equipo G1, Equipo G2, int saldo) {
+
+		
+		
+		Partido partido1 = new Partido( G1, G2);
+		boolean valor = false;
+		do {
+			
+			String[] opciones = {"Ingresar dinero", "Realizar apuesta", "Mostrar fixture" };
+
+			String mensaje = "Tu saldo es : $" + saldo;
+
+			int seleccion = JOptionPane.showOptionDialog(null, mensaje, "Menu torneo", 0, JOptionPane.INFORMATION_MESSAGE,
+					null, opciones, "");
+
+			switch (seleccion) {
+			case 0:
+				
+				saldo += ingresoDeMasDinero();
+				JOptionPane.showMessageDialog(null, "Dinero recargado a la cuenta");
+				break;
+			case 1:
+				
+
+				valor = RealizarApuestaFinal(partido1, saldo);
+				break;
+
+			case 2:
+				String InialPartido = "FINAL\n";
+				InialPartido += partido1.InformacionInicialPartido();
+				JOptionPane.showMessageDialog(null, InialPartido);
+				break;
+
+			}
+		} while (!valor);
+
+	}
+	
+	
+	private static int ingresoDeMasDinero() {
+
+		int saldo = 0;
+		boolean saldoValido = false;
+
+		while (!saldoValido) {
+			try {
+				saldo = Integer.parseInt(JOptionPane.showInputDialog("ingresa cantidad de dinero:"));
+				if (saldo > 0) {
+					saldoValido = true;
+				} else {
+					JOptionPane.showMessageDialog(null, "El saldo debe ser mayor que cero.");
+				}
+			} catch (NumberFormatException e) {
+				JOptionPane.showMessageDialog(null, "Por favor, ingresa un número válido.");
+			}
+		}
+
+		return saldo;
+
+	}
+
+	private static boolean RealizarApuestaFinal(Partido partido1,  int saldo) {
+
+		
+		Equipo g1 = partido1.JugarPartidoYDevuelveGanador();
+		String FinalPartido = "RESULTADO\n";
+		FinalPartido += partido1.InformacionFinalPartido();
+		
+		
+		if (saldo != 0) {
+			int apuesta = IngresaApuesta(saldo);
+			
+		
+			
+			
+			String[] opciones2 = { partido1.getUno().getNombreEquipo(), partido1.getDos().getNombreEquipo() };
+
+			int seleccion2 = JOptionPane.showOptionDialog(null, "Selecciona el equipo Ganador:", "Menu torneo",
+					JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, opciones2,
+					opciones2[0]);
+			
+			
+			if (opciones2[seleccion2] == g1.getNombreEquipo()) {
+
+				apuesta = apuesta * 2;
+				saldo = saldo + apuesta;
+
+				FinalPartido = FinalPartido + "\n ------APUESTA------ \n Ganaste $ " + apuesta;
+
+				JOptionPane.showMessageDialog(null, FinalPartido);
+
+			} else {
+
+				FinalPartido = FinalPartido + "\n ------APUESTA------ \n Perdiste $ " + apuesta;
+				saldo = saldo - apuesta;
+				JOptionPane.showMessageDialog(null, FinalPartido);
+			}
+
+			return true;
+			
+
+		} else {
+			JOptionPane.showMessageDialog(null, "No presentas saldo para seguir jugando con las apuestas!");
+			
+			return false;
+		}
+		
+		
+	}
+
+	private static void MostrarFixtureSemifinal(Partido p1, Partido p2) {
+		String InialPartido = "SEMIFINAL               \n\n";
+		InialPartido += p1.InformacionInicialPartido();
+		InialPartido += "     ||     ";
+		InialPartido += p2.InformacionInicialPartido();
+		JOptionPane.showMessageDialog(null, InialPartido);
+
+	}
+
+	private static String MostrarResultadoSemifinal(Partido p1, Partido p2) {
+		String FinalPartido = "          RESULTADOS : SEMIFINAL                \n";
+		FinalPartido += "\n   PARTIDO 1" + "\n";
+		FinalPartido += p1.InformacionFinalPartido();
+		FinalPartido += "\n   PARTIDO 2" + "\n";
+		FinalPartido += p2.InformacionFinalPartido();
+
+		return FinalPartido;
+
+	}
+
+	
+
+	private static String MostrarResultadosCuartos(Partido p1, Partido p2, Partido p3, Partido p4) {
+		String FinalPartido = "          RESULTADOS : CUARTOS DE FINAL        \n\n";
+		FinalPartido += "\n   PARTIDO 1" + "\n";
+		FinalPartido += p1.InformacionFinalPartido();
+		FinalPartido += "\n   PARTIDO 2" + "\n";
+		FinalPartido += p2.InformacionFinalPartido();
+		FinalPartido += "\n   PARTIDO 3" + "\n";
+		FinalPartido += p3.InformacionFinalPartido();
+		FinalPartido += "\n   PARTIDO 4" + "\n";
+		FinalPartido += p4.InformacionFinalPartido();
+
+		return FinalPartido;
+
+	}
+
+	private static int SeleccionDeEquipoApuesta(String texto) {
+
+		int opcion = 0;
+		boolean saldoValido = false;
+
+		while (!saldoValido) {
+			try {
+				opcion = Integer.parseInt(JOptionPane.showInputDialog(texto));
+				if (opcion == 1 || opcion == 2) {
+					saldoValido = true;
+				} else {
+					JOptionPane.showMessageDialog(null, "Ingresa un dato solictiado");
+				}
+			} catch (NumberFormatException e) {
+				JOptionPane.showMessageDialog(null, "Por favor, ingresa un número válido.");
+			}
+		}
+
+		return opcion;
+	}
+
+	private static int IngresaApuesta(int saldo) {
+
+		int apuesta = 0;
+		boolean saldoValido = false;
+
+		while (!saldoValido) {
+			try {
+				apuesta = Integer.parseInt(JOptionPane.showInputDialog("Realiza tu apuesta:\n"));
+				if (apuesta > 0 && apuesta <= saldo) {
+					saldoValido = true;
+				} else if (apuesta<=0){
+					JOptionPane.showMessageDialog(null, "la apuesta debe ser mayor que cero.");
+				} else if (apuesta>saldo){
+					JOptionPane.showMessageDialog(null, "la apuesta  no debe ser mayor que $"+saldo);
+				}
+			} catch (NumberFormatException e) {
+				JOptionPane.showMessageDialog(null, "Por favor, ingresa un número válido.");
+			}
+		}
+
+		return apuesta;
+
+	}
+
+	private static Partido ObteniendoPartido(ArrayList<Equipo> equipos) {
+
+		Equipo equipo1 = SeleccionandoUnEquipoAleatorio(equipos);
+		Equipo equipo2 = SeleccionandoUnEquipoAleatorio(equipos);
+
+		Partido part = new Partido( equipo1, equipo2);
+
+		return part;
+
+	}
+
+	private static void MostrarFixtureCuartos(Partido p1, Partido p2, Partido p3, Partido p4) {
+		String InialPartido = "CUARTOS DE FINAL        \n\n";
+		InialPartido += p1.InformacionInicialPartido();
+		InialPartido += "     ||     ";
+		InialPartido += p2.InformacionInicialPartido();
+		InialPartido += "\n\n";
+		InialPartido += p3.InformacionInicialPartido();
+		InialPartido += "     ||     ";
+		InialPartido += p4.InformacionInicialPartido();
+		JOptionPane.showMessageDialog(null, InialPartido);
+	}
+
+	private static int IngresoDeSaldo() {
+
+		int saldo = 0;
+		boolean saldoValido = false;
+
+		while (!saldoValido) {
+			try {
+				saldo = Integer.parseInt(JOptionPane.showInputDialog("Ingresa saldo inicial:"));
+				if (saldo > 0) {
+					saldoValido = true;
+				} else {
+					JOptionPane.showMessageDialog(null, "El saldo debe ser mayor que cero.");
+				}
+			} catch (NumberFormatException e) {
+				JOptionPane.showMessageDialog(null, "Por favor, ingresa un número válido.");
+			}
+		}
+
+		return saldo;
+
+	}
+
+	private static void AgregandoEquiposExtra(ArrayList<Equipo> equiposExtra, ArrayList<Equipo> equipos) {
+
+		for (Equipo equipo : equipos) {
+
+			equiposExtra.add(equipo);
+
+		}
+
+	}
+
+	private static Equipo SeleccionandoUnEquipoAleatorio(ArrayList<Equipo> equipos) {
+
+		int totalEquipos = equipos.size();
+
+		Equipo auxiliar;
+
+		int seleccionado = (int) (Math.random() * totalEquipos);
+
+		auxiliar = equipos.get(seleccionado);
+		equipos.remove(seleccionado);
+
+		return auxiliar;
+
+	}
+
+	private static void CargarEquiposAleatorios(ArrayList<Equipo> equipos) {
+		String[] EquiposName = { "Milan", "Real madrid", "Boca", "River", "Barcelona", "Osasuna", "Racing", "Benfica" };
+		String[] EquiposCiudad = { "milan", "madrid", "la boca", "nuñez", "barcelona", "pamplona", "avellaneda",
+				"lisboa" };
+
+		for (int i = 0; i < EquiposName.length; i++) {
+
+			Equipo equipo = CargandoJugadores(EquiposCiudad[i], EquiposName[i]);
+
+			equipos.add(equipo);
+
+		}
+
+	}
+
+	private static Equipo CargandoJugadores(String ciudad, String equipoNombre) {
+		int cantidadJugador = 8;
+		String[] Camiseta = { "POR", "DEF", "DEF", "DEF", "MC", "MC", "DEL", "DEL" };
+		Equipo equipo = new Equipo(equipoNombre, ciudad);
+		String[] cam = { "POR", "DEF", "DEF", "DEF", "MC", "MC", "DEL", "DEL" };
+
+		for (int i = 0; i < cantidadJugador; i++) {
+
+			Jugador jugador = new Jugador("nombre", 20 + i, cam[i], i + 1);
+
+			equipo.agregarJugadorAlEquipo(jugador);
+		}
+
+		return equipo;
 
 	}
 
@@ -1131,68 +1782,46 @@ public class GestorDeEquipos {
 				equipos.remove(i);
 				System.out.println("Equipo eliminado.");
 
-			} 
+			}
 		}
-		
-		
-
-}
-
-
-
-
-
-
-
-	public void MostrarCantidadTotalDeEquiposDesdeCodigo() { {
-		
-			
-		if(equipos.size()==0) {
-			System.out.println("No presentas equipos aun ");
-			
-		}else {
-			System.out.println("Cantidad de equipos registrados... "+equipos.size());
-		}
-		
-		
 
 	}
 
+	public void MostrarCantidadTotalDeEquiposDesdeCodigo() {
+		{
 
-}
+			if (equipos.size() == 0) {
+				System.out.println("No presentas equipos aun ");
 
+			} else {
+				System.out.println("Cantidad de equipos registrados... " + equipos.size());
+			}
 
-	public void MostrarListaDeEquiposDesdeElCodigo() { {
-		
-		
-	
-		if(equipos.size()==0) {
-			
-			System.out.println("No hay equipos registrados...");
-		}else {
-			String mensaje="\nLista de equipos\n";
+		}
 
-			for (Equipo equipo : equipos) {
-			
-				mensaje = mensaje + equipo.getNombreEquipo() + "\n" + equipo.getCiudad() + "\n";
+	}
+
+	public void MostrarListaDeEquiposDesdeElCodigo() {
+		{
+
+			if (equipos.size() == 0) {
+
+				System.out.println("No hay equipos registrados...");
+			} else {
+				String mensaje = "\nLista de equipos\n";
+
+				for (Equipo equipo : equipos) {
+
+					mensaje = mensaje + equipo.getNombreEquipo() + "\n" + equipo.getCiudad() + "\n";
+
+				}
+
+				System.out.println(mensaje);
 
 			}
-			
-			System.out.println(mensaje);
-			
+
 		}
-		
-		
-		
-		
 
 	}
-
-
-}
-
-
-
-
 
 }
