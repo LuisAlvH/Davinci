@@ -11,6 +11,15 @@ public class Equipo {
 	
 	
 ///CONSTRUCTOR
+public Equipo() {
+		
+		this.nombreEquipo = "";
+		Ciudad = "";
+		
+		
+	}
+	
+	
 	public Equipo(String nombreEquipo, String ciudad) {
 		super();
 		this.nombreEquipo = nombreEquipo;
@@ -20,13 +29,7 @@ public class Equipo {
 	}
 	
 	
-	public Equipo( ) {
-		
-		this.nombreEquipo = "";
-		Ciudad = "";
-		
-		
-	}
+	
 
 ///GET AND SET
 		
